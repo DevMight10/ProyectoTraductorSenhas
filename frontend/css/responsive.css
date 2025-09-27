@@ -1,0 +1,118 @@
+/* ========== TABLETS (768px y menos) ========== */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    header .subtitle {
+        font-size: 1rem;
+    }
+
+    section {
+        padding: 1.5rem;
+    }
+
+    .mode-buttons {
+        flex-direction: column;
+    }
+
+    .mode-btn {
+        min-width: 100%;
+    }
+
+    .input-container {
+        flex-direction: column;
+    }
+
+    .btn-voice {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .camera-controls {
+        flex-direction: column;
+    }
+
+    .camera-controls button {
+        width: 100%;
+    }
+
+    .text-result p {
+        font-size: 1.2rem;
+    }
+}
+
+/* ========== MÓVILES (480px y menos) ========== */
+@media (max-width: 480px) {
+    .container {
+        padding: 0 15px;
+    }
+
+    header {
+        padding: 1.5rem 0;
+    }
+
+    header h1 {
+        font-size: 1.25rem;
+    }
+
+    section {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    section h2,
+    section h3 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .mode-btn {
+        padding: 1rem;
+    }
+
+    .mode-btn .icon {
+        font-size: 1.5rem;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    #textInput {
+        min-height: 100px;
+        font-size: 0.9rem;
+    }
+
+    .text-result p {
+        font-size: 1rem;
+    }
+
+    #signVideo,
+    #signImage {
+        max-height: 300px;
+    }
+}
+
+/* ========== ACCESIBILIDAD ========== */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* Mejora de contraste para lectores de pantalla */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
