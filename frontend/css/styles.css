@@ -1,13 +1,13 @@
 /* ========== VARIABLES Y RESET ========== */
 :root {
-    --primary-color: #2563eb;
-    --secondary-color: #64748b;
-    --success-color: #10b981;
+    --primary-color: #0077b6;
+    --secondary-color: #00b4d8;
+    --success-color: #00b4d8;
     --danger-color: #ef4444;
-    --bg-color: #f8fafc;
+    --bg-color: #caf0f8;
     --card-bg: #ffffff;
-    --text-color: #1e293b;
-    --border-color: #e2e8f0;
+    --text-color: #03045e;
+    --border-color: #90e0ef;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
@@ -32,7 +32,7 @@ body {
 
 /* ========== HEADER ========== */
 header {
-    background: linear-gradient(135deg, var(--primary-color), #1d4ed8);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: white;
     padding: 2rem 0;
     text-align: center;
@@ -167,7 +167,7 @@ section h3 {
 .btn-voice {
     padding: 1rem 2rem;
     background: var(--success-color);
-    color: white;
+    color: var(--text-color);
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -265,8 +265,8 @@ section h3 {
 
 /* ========== FOOTER ========== */
 footer {
-    background: var(--text-color);
-    color: white;
+    background: var(--card-bg);
+    color: var(--text-color);
     text-align: center;
     padding: 1.5rem 0;
     margin-top: 3rem;
