@@ -2,6 +2,7 @@
 
 // Variables globales
 let cameraManager;
+let handDetector;
 let currentMode = 'signsToText'; // 'signsToText' o 'textToSigns'
 
 // Elementos del DOM
@@ -29,8 +30,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Inicializar el gestor de cámara
+    // Inicializar gestores
     cameraManager = new CameraManager();
+    handDetector = new HandDetector();
+
+    // Configurar callback para cuando se detecten manos
+    handDetector.setOnResultsCallback((results) => {
+        handleHandDetection(results);
+    });
 
     // Configurar event listeners
     setupEventListeners();
@@ -52,16 +59,37 @@ function setupEventListeners() {
 
     // Botones de control de cámara
     btnStartCamera.addEventListener('click', async () => {
-        const success = await cameraManager.startCamera();
+        btnStartCamera.disabled = true;
+        btnStartCamera.textContent = 'Iniciando...';
+
+        // Primero iniciar la cámara básica
+        const cameraSuccess = await cameraManager.startCamera();
         
-        if (success) {
-            btnStartCamera.disabled = true;
-            btnStopCamera.disabled = false;
-            showMessage('Cámara iniciada correctamente', 'success');
+        if (cameraSuccess) {
+            // Esperar un momento para que el video esté listo
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Luego iniciar la detección de manos
+            const detectionSuccess = await handDetector.startDetection();
+            
+            if (detectionSuccess) {
+                btnStartCamera.disabled = true;
+                btnStartCamera.textContent = 'Iniciar Cámara';
+                btnStopCamera.disabled = false;
+                showMessage('Cámara y detección iniciadas correctamente', 'success');
+            } else {
+                btnStartCamera.disabled = false;
+                btnStartCamera.textContent = 'Iniciar Cámara';
+                showMessage('Error al iniciar la detección de manos', 'error');
+            }
+        } else {
+            btnStartCamera.disabled = false;
+            btnStartCamera.textContent = 'Iniciar Cámara';
         }
     });
 
     btnStopCamera.addEventListener('click', () => {
+        handDetector.stopDetection();
         cameraManager.stopCamera();
         btnStartCamera.disabled = false;
         btnStopCamera.disabled = true;
@@ -94,9 +122,36 @@ function setupEventListeners() {
     });
 }
 
+// Manejar la detección de manos
+function handleHandDetection(results) {
+    // Verificar si hay manos detectadas
+    if (handDetector.hasHands(results)) {
+        const landmarks = handDetector.getHandLandmarks(results);
+        const handedness = handDetector.getHandedness(results);
+        
+        // Log para debugging (puedes comentar después)
+        console.log(`🖐️ Manos detectadas: ${landmarks.length}`);
+        console.log(`👉 Mano(s): ${handedness.join(', ')}`);
+
+        // Aquí irá la lógica de reconocimiento de señas
+        // Por ahora solo mostramos que se detectó
+        // processSignRecognition(landmarks);
+    }
+}
+
 // Cambiar entre modos de traducción
 function switchMode(mode) {
     currentMode = mode;
+
+    // Detener cámara y detección si están activas
+    if (handDetector.isDetecting) {
+        handDetector.stopDetection();
+    }
+    if (cameraManager.isCameraActive()) {
+        cameraManager.stopCamera();
+    }
+    btnStartCamera.disabled = false;
+    btnStopCamera.disabled = true;
 
     // Actualizar botones activos
     if (mode === 'signsToText') {
@@ -111,6 +166,7 @@ function switchMode(mode) {
         textResult.querySelector('p').textContent = 'Aquí aparecerá el texto traducido...';
         textResult.style.display = 'block';
         signResult.style.display = 'none';
+        btnPlayVoice.style.display = 'none';
 
     } else if (mode === 'textToSigns') {
         btnTextToSigns.classList.add('active');
@@ -146,10 +202,11 @@ function showMessage(message, type = 'info') {
         padding: 1rem 1.5rem;
         background: ${getMessageColor(type)};
         color: white;
-        border-radius: 8px;
+        border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         z-index: 1000;
         animation: slideIn 0.3s ease;
+        font-weight: 500;
     `;
 
     document.body.appendChild(notification);
