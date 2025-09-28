@@ -4,6 +4,7 @@
 let cameraManager;
 let handDetector;
 let currentMode = 'signsToText'; // 'signsToText' o 'textToSigns'
+let signRecognizer;
 
 // Elementos del DOM
 const btnSignsToText = document.getElementById('btnSignsToText');
@@ -21,7 +22,7 @@ const signResult = document.getElementById('signResult');
 const textInput = document.getElementById('textInput');
 
 // Inicializar la aplicación cuando cargue el DOM
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Aplicación iniciada');
     
     // Verificar soporte de cámara
@@ -33,6 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicializar gestores
     cameraManager = new CameraManager();
     handDetector = new HandDetector();
+    signRecognizer = new SignRecognizer();
+    
+    // Inicializar el reconocedor
+    await signRecognizer.initialize();
 
     // Configurar callback para cuando se detecten manos
     handDetector.setOnResultsCallback((results) => {
@@ -124,18 +129,19 @@ function setupEventListeners() {
 
 // Manejar la detección de manos
 function handleHandDetection(results) {
-    // Verificar si hay manos detectadas
     if (handDetector.hasHands(results)) {
         const landmarks = handDetector.getHandLandmarks(results);
         const handedness = handDetector.getHandedness(results);
         
-        // Log para debugging (puedes comentar después)
-        console.log(`🖐️ Manos detectadas: ${landmarks.length}`);
-        console.log(`👉 Mano(s): ${handedness.join(', ')}`);
-
-        // Aquí irá la lógica de reconocimiento de señas
-        // Por ahora solo mostramos que se detectó
-        // processSignRecognition(landmarks);
+        // Reconocer la seña
+        signRecognizer.recognizeSign(landmarks).then(prediction => {
+            if (prediction && prediction.confidence >= signRecognizer.predictionThreshold) {
+                console.log(`✋ Seña detectada: ${prediction.label} (${(prediction.confidence * 100).toFixed(1)}%)`);
+                
+                // Actualizar resultado en la UI
+                updateTextResult(prediction.label);
+            }
+        });
     }
 }
 
