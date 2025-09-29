@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traductor LSB - Lenguaje de Señas Boliviano</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="container">
+            <h1>Traductor de Lenguaje de Señas Boliviano</h1>
+            <p class="subtitle">Comunicación sin barreras</p>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="container">
+        
+        <!-- SECCIÓN DE MODOS DE TRADUCCIÓN -->
+        <section class="translation-modes">
+            <h2>Selecciona el modo de traducción</h2>
+            <div class="mode-buttons">
+                <button id="btnSignsToText" class="mode-btn active">
+                    <span class="icon">👋</span>
+                    Señas → Texto/Voz
+                </button>
+                <button id="btnTextToSigns" class="mode-btn">
+                    <span class="icon">💬</span>
+                    Texto/Voz → Señas
+                </button>
+            </div>
+        </section>
+
+        <!-- ÁREA DE CÁMARA Y VIDEO -->
+        <section class="camera-section" id="cameraSection">
+            <h3>Cámara</h3>
+            <div class="video-container">
+                <video id="videoElement" autoplay playsinline></video>
+                <canvas id="canvasElement"></canvas>
+            </div>
+            <div class="camera-controls">
+                <button id="btnStartCamera" class="btn-primary">Iniciar Cámara</button>
+                <button id="btnStopCamera" class="btn-secondary" disabled>Detener Cámara</button>
+            </div>
+        </section>
+
+        <!-- ÁREA DE ENTRADA DE TEXTO/VOZ -->
+        <section class="input-section" id="inputSection" style="display: none;">
+            <h3>Ingresa texto o usa tu voz</h3>
+            <div class="input-container">
+                <textarea id="textInput" placeholder="Escribe aquí el texto a traducir..."></textarea>
+                <button id="btnVoiceInput" class="btn-voice">
+                    <span class="icon">🎤</span>
+                    Hablar
+                </button>
+            </div>
+            <button id="btnTranslate" class="btn-primary">Traducir</button>
+        </section>
+
+        <!-- ÁREA DE RESULTADOS -->
+        <section class="results-section">
+            <h3>Resultado de la traducción</h3>
+            <div class="result-container">
+                <!-- Para mostrar texto traducido -->
+                <div id="textResult" class="text-result">
+                    <p>Aquí aparecerá el texto traducido...</p>
+                </div>
+                
+                <!-- Para mostrar video de señas -->
+                <div id="signResult" class="sign-result" style="display: none;">
+                    <video id="signVideo" controls></video>
+                    <img id="signImage" alt="Seña" style="display: none;">
+                </div>
+            </div>
+            
+            <!-- Botón para reproducir voz -->
+            <button id="btnPlayVoice" class="btn-secondary" style="display: none;">
+                <span class="icon">🔊</span>
+                Reproducir Voz
+            </button>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Traductor LSB - Proyecto de Inclusión Social</p>
+        </div>
+    </footer>
+
+    <!-- LIBRERÍAS EXTERNAS -->
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>    
+
+    <!-- TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
+
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <!-- SCRIPTS DE LA APLICACIÓN -->
+    <script src="js/camera.js"></script>
+    <script src="js/handDetection.js"></script>
+    <script src="js/signRecognition.js"></script>
+    <script src="js/speechToText.js"></script>
+    <script src="js/textToSpeech.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

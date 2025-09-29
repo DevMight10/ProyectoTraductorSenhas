@@ -1,0 +1,169 @@
+/* ========== TABLETS (768px y menos) ========== */
+@media (max-width: 768px) {
+    header {
+        padding: 3rem 0 2rem;
+    }
+
+    header h1 {
+        font-size: 2rem;
+    }
+
+    header .subtitle {
+        font-size: 1rem;
+    }
+
+    main {
+        padding: 2rem 0;
+        margin-top: -1.5rem;
+    }
+
+    section {
+        padding: 2rem;
+    }
+
+    section h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .mode-buttons {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .input-container {
+        flex-direction: column;
+    }
+
+    .btn-voice {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .camera-controls {
+        flex-direction: column;
+    }
+
+    .camera-controls button {
+        width: 100%;
+    }
+
+    .text-result p {
+        font-size: 1.35rem;
+    }
+}
+
+/* ========== MÓVILES (480px y menos) ========== */
+@media (max-width: 480px) {
+    .container {
+        padding: 0 16px;
+    }
+
+    header {
+        padding: 2.5rem 0 1.5rem;
+    }
+
+    header h1 {
+        font-size: 1.65rem;
+    }
+
+    header .subtitle {
+        font-size: 0.95rem;
+    }
+
+    main {
+        padding: 1.5rem 0;
+    }
+
+    section {
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border-radius: 12px;
+    }
+
+    section h2 {
+        font-size: 1.35rem;
+        margin-bottom: 1.25rem;
+    }
+
+    section h3 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+
+    .mode-btn {
+        padding: 1.5rem;
+    }
+
+    .mode-btn .icon {
+        font-size: 2rem;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        padding: 0.875rem 2rem;
+        font-size: 0.95rem;
+    }
+
+    #textInput {
+        min-height: 120px;
+        padding: 1rem;
+    }
+
+    .text-result {
+        padding: 2rem 1.5rem;
+    }
+
+    .text-result p {
+        font-size: 1.15rem;
+    }
+
+    #signVideo,
+    #signImage {
+        max-height: 280px;
+    }
+
+    footer {
+        padding: 1.5rem 0;
+        margin-top: 2rem;
+    }
+}
+
+/* ========== ACCESIBILIDAD ========== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ========== ALTO CONTRASTE ========== */
+@media (prefers-contrast: high) {
+    :root {
+        --border-color: #03045e;
+    }
+
+    .mode-btn {
+        border-width: 3px;
+    }
+
+    #textInput {
+        border-width: 3px;
+    }
+}
+
+/* Mejora para lectores de pantalla */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
