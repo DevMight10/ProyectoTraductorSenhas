@@ -4,6 +4,7 @@
 let cameraManager;
 let currentMode = 'signsToText';
 let signRecognizer;
+let textToSignTranslator;
 
 // Elementos del DOM
 const btnSignsToText = document.getElementById('btnSignsToText');
@@ -34,6 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Inicializar gestores
     cameraManager = new CameraManager();
     signRecognizer = new SignRecognizer();
+    textToSignTranslator = new TextToSignTranslator();
 
     // Cargar modelo por defecto
     await signRecognizer.initialize('abecedario');
@@ -103,8 +105,10 @@ function setupEventListeners() {
         showMessage('Función de voz en desarrollo...', 'info');
     });
 
-    // Botón traducir
-    btnTranslate.addEventListener('click', () => {
+    // ============================================
+    // BOTÓN TRADUCIR - TEXTO → SEÑAS
+    // ============================================
+    btnTranslate.addEventListener('click', async () => {
         const text = textInput.value.trim();
         
         if (!text) {
@@ -112,12 +116,39 @@ function setupEventListeners() {
             return;
         }
 
-        showMessage('Traduciendo...', 'info');
+        // Deshabilitar botón mientras traduce
+        btnTranslate.disabled = true;
+        btnTranslate.textContent = 'Traduciendo...';
+        
+        try {
+            await textToSignTranslator.translateText(text);
+        } catch (error) {
+            console.error('Error al traducir:', error);
+            showMessage('Error al traducir el texto', 'error');
+        } finally {
+            // Rehabilitar botón
+            btnTranslate.disabled = false;
+            btnTranslate.textContent = 'Traducir';
+        }
+    });
+
+    // Traducir al presionar Enter
+    textInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            btnTranslate.click();
+        }
     });
 
     // Botón reproducir voz
     btnPlayVoice.addEventListener('click', () => {
-        showMessage('Reproduciendo voz...', 'info');
+        const text = textResult.querySelector('p').textContent;
+        if (text && text !== 'Aquí aparecerá el texto traducido...') {
+            textToSignTranslator.speakText(text);
+            showMessage('Reproduciendo voz...', 'info');
+        } else {
+            showMessage('No hay texto para reproducir', 'warning');
+        }
     });
 }
 
@@ -166,6 +197,12 @@ function switchMode(mode) {
         textInput.value = '';
         textResult.style.display = 'none';
         signResult.style.display = 'block';
+        
+        // Limpiar resultado anterior
+        const resultContainer = document.querySelector('.result-container');
+        if (resultContainer) {
+            resultContainer.innerHTML = '<p style="color: #718096;">Escribe un texto y presiona "Traducir"</p>';
+        }
     }
 
     console.log(`Modo: ${mode}`);
