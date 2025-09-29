@@ -1,8 +1,8 @@
-// main.js - Archivo principal de la aplicación (SIN MediaPipe)
+// main.js - Archivo principal de la aplicación
 
 // Variables globales
 let cameraManager;
-let currentMode = 'signsToText'; // 'signsToText' o 'textToSigns'
+let currentMode = 'signsToText';
 let signRecognizer;
 
 // Elementos del DOM
@@ -13,6 +13,7 @@ const btnStopCamera = document.getElementById('btnStopCamera');
 const btnVoiceInput = document.getElementById('btnVoiceInput');
 const btnTranslate = document.getElementById('btnTranslate');
 const btnPlayVoice = document.getElementById('btnPlayVoice');
+const modelSelect = document.getElementById('model-select');
 
 const cameraSection = document.getElementById('cameraSection');
 const inputSection = document.getElementById('inputSection');
@@ -20,7 +21,7 @@ const textResult = document.getElementById('textResult');
 const signResult = document.getElementById('signResult');
 const textInput = document.getElementById('textInput');
 
-// Inicializar la aplicación cuando cargue el DOM
+// Inicializar la aplicación
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Aplicación iniciada');
     
@@ -34,8 +35,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     cameraManager = new CameraManager();
     signRecognizer = new SignRecognizer();
 
-    // Inicializar el reconocedor
-    await signRecognizer.initialize();
+    // Cargar modelo por defecto
+    await signRecognizer.initialize('abecedario');
+    showMessage('Modelo cargado: Abecedario', 'success');
 
     // Iniciar reconocimiento continuo
     startContinuousRecognition();
@@ -47,22 +49,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     switchMode('signsToText');
 });
 
-// Reconocimiento continuo sin MediaPipe
-function startContinuousRecognition() {
-    setInterval(async () => {
-        if (cameraManager.isCameraActive() && signRecognizer.isReady()) {
-            const prediction = await signRecognizer.recognizeSign();
-            if (prediction && prediction.confidence >= signRecognizer.predictionThreshold) {
-                console.log(`Seña detectada: ${prediction.label} (${(prediction.confidence * 100).toFixed(1)}%)`);
-                updateTextResult(prediction.label);
-            }
-        }
-    }, 500); // Revisar cada 500ms
-}
-
-// Configurar todos los event listeners
+// Event listener para cambio de modelo
 function setupEventListeners() {
-    // Botones de modo de traducción
+    // Selector de modelo
+    modelSelect.addEventListener('change', async (e) => {
+        const newModel = e.target.value;
+        showMessage(`Cambiando a: ${signRecognizer.modelConfig[newModel].name}...`, 'info');
+        
+        const success = await signRecognizer.switchModel(newModel);
+        
+        if (success) {
+            showMessage(`Modelo cargado: ${signRecognizer.getCurrentModelName()}`, 'success');
+        } else {
+            showMessage('Error al cambiar modelo', 'error');
+        }
+    });
+
+    // Botones de modo
     btnSignsToText.addEventListener('click', () => {
         switchMode('signsToText');
     });
@@ -71,7 +74,7 @@ function setupEventListeners() {
         switchMode('textToSigns');
     });
 
-    // Botones de control de cámara
+    // Botones de cámara
     btnStartCamera.addEventListener('click', async () => {
         btnStartCamera.disabled = true;
         btnStartCamera.textContent = 'Iniciando...';
@@ -79,7 +82,6 @@ function setupEventListeners() {
         const cameraSuccess = await cameraManager.startCamera();
         
         if (cameraSuccess) {
-            btnStartCamera.disabled = true;
             btnStartCamera.textContent = 'Iniciar Cámara';
             btnStopCamera.disabled = false;
             showMessage('Cámara iniciada correctamente', 'success');
@@ -96,13 +98,12 @@ function setupEventListeners() {
         showMessage('Cámara detenida', 'info');
     });
 
-    // Botón de entrada de voz (implementación pendiente)
+    // Botón de voz
     btnVoiceInput.addEventListener('click', () => {
         showMessage('Función de voz en desarrollo...', 'info');
-        // Aquí irá la función de speech-to-text
     });
 
-    // Botón de traducir (implementación pendiente)
+    // Botón traducir
     btnTranslate.addEventListener('click', () => {
         const text = textInput.value.trim();
         
@@ -112,37 +113,44 @@ function setupEventListeners() {
         }
 
         showMessage('Traduciendo...', 'info');
-        // Aquí irá la función de traducción texto -> señas
     });
 
-    // Botón de reproducir voz (implementación pendiente)
+    // Botón reproducir voz
     btnPlayVoice.addEventListener('click', () => {
         showMessage('Reproduciendo voz...', 'info');
-        // Aquí irá la función de text-to-speech
     });
 }
 
-// Cambiar entre modos de traducción
+// Reconocimiento continuo
+function startContinuousRecognition() {
+    setInterval(async () => {
+        if (cameraManager.isCameraActive() && signRecognizer.isReady()) {
+            const prediction = await signRecognizer.recognizeSign();
+            if (prediction) {
+                console.log(`Seña detectada: ${prediction.label} (${(prediction.confidence * 100).toFixed(1)}%)`);
+                updateTextResult(prediction.label);
+            }
+        }
+    }, 500);
+}
+
+// Cambiar modo
 function switchMode(mode) {
     currentMode = mode;
 
-    // Detener cámara si está activa
     if (cameraManager.isCameraActive()) {
         cameraManager.stopCamera();
     }
     btnStartCamera.disabled = false;
     btnStopCamera.disabled = true;
 
-    // Actualizar botones activos
     if (mode === 'signsToText') {
         btnSignsToText.classList.add('active');
         btnTextToSigns.classList.remove('active');
         
-        // Mostrar sección de cámara
         cameraSection.style.display = 'block';
         inputSection.style.display = 'none';
         
-        // Limpiar resultados
         textResult.querySelector('p').textContent = 'Aquí aparecerá el texto traducido...';
         textResult.style.display = 'block';
         signResult.style.display = 'none';
@@ -152,26 +160,21 @@ function switchMode(mode) {
         btnTextToSigns.classList.add('active');
         btnSignsToText.classList.remove('active');
         
-        // Mostrar sección de entrada de texto
         cameraSection.style.display = 'none';
         inputSection.style.display = 'block';
         
-        // Limpiar resultados
         textInput.value = '';
         textResult.style.display = 'none';
         signResult.style.display = 'block';
     }
 
-    console.log(`📍 Modo cambiado a: ${mode}`);
+    console.log(`Modo: ${mode}`);
 }
 
-// Mostrar mensajes al usuario
+// Mostrar mensajes
 function showMessage(message, type = 'info') {
-    // Tipos: 'success', 'error', 'warning', 'info'
-    
     console.log(`${getMessageIcon(type)} ${message}`);
     
-    // Crear elemento de notificación
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.textContent = message;
@@ -191,16 +194,12 @@ function showMessage(message, type = 'info') {
 
     document.body.appendChild(notification);
 
-    // Remover después de 3 segundos
     setTimeout(() => {
         notification.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => {
-            notification.remove();
-        }, 300);
+        setTimeout(() => notification.remove(), 300);
     }, 3000);
 }
 
-// Obtener color según tipo de mensaje
 function getMessageColor(type) {
     const colors = {
         success: '#10b981',
@@ -211,7 +210,6 @@ function getMessageColor(type) {
     return colors[type] || colors.info;
 }
 
-// Obtener icono según tipo de mensaje
 function getMessageIcon(type) {
     const icons = {
         success: '✅',
@@ -222,14 +220,12 @@ function getMessageIcon(type) {
     return icons[type] || icons.info;
 }
 
-// Actualizar resultado de texto
 function updateTextResult(text) {
     const resultText = textResult.querySelector('p');
     resultText.textContent = text;
     btnPlayVoice.style.display = 'flex';
 }
 
-// Actualizar resultado de señas (video o imagen)
 function updateSignResult(mediaUrl, type = 'video') {
     const signVideo = document.getElementById('signVideo');
     const signImage = document.getElementById('signImage');
@@ -245,7 +241,7 @@ function updateSignResult(mediaUrl, type = 'video') {
     }
 }
 
-// Agregar estilos para animaciones
+// Animaciones
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideIn {
@@ -272,7 +268,6 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Exportar funciones globales si es necesario
 window.updateTextResult = updateTextResult;
 window.updateSignResult = updateSignResult;
 window.showMessage = showMessage;

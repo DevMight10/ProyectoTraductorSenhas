@@ -371,3 +371,68 @@ footer p {
 section {
     animation: fadeIn 0.5s ease-out;
 }
+
+
+/* ========== SELECTOR DE MODELO ========== */
+.model-selector-section {
+    background: linear-gradient(to bottom, white, rgba(144, 224, 239, 0.15));
+}
+
+.model-selector-section h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+    text-align: center;
+}
+
+#model-selector-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+#model-select {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--text-color);
+    background: white;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%230077b6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 20px;
+    padding-right: 3rem;
+}
+
+#model-select:hover {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
+}
+
+#model-select:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 4px rgba(0, 180, 216, 0.15);
+}
+
+#model-select option {
+    padding: 0.75rem;
+}
+
+/* ========== WORKSPACE LAYOUT ========== */
+.translation-workspace {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+.main-column,
+.sidebar-column {
+    width: 100%;
+}

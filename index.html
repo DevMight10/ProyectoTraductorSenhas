@@ -34,6 +34,18 @@
             </div>
         </section>
 
+        <!-- SELECTOR DE MODELO -->
+        <section class="model-selector-section">
+            <h3>Selecciona qué quieres reconocer:</h3>
+            <div id="model-selector-container">
+                <select id="model-select">
+                    <option value="abecedario">Abecedario (A-Z)</option>
+                    <option value="numeros">Números (0-10)</option>
+                    <option value="saludos">Saludos</option>
+                </select>
+            </div>
+        </section>
+
         <!-- ÁREA DE TRADUCCIÓN PRINCIPAL -->
         <div class="translation-workspace">
 
@@ -106,6 +118,9 @@
 
     <!-- TensorFlow.js -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
+    
+    <!-- Teachable Machine -->
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
 
     <!-- SCRIPTS DE LA APLICACIÓN -->
     <script src="js/camera.js"></script>
