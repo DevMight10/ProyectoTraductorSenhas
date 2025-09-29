@@ -5,6 +5,7 @@ let cameraManager;
 let currentMode = 'signsToText';
 let signRecognizer;
 let textToSignTranslator;
+let speechRecognizer;
 
 // Elementos del DOM
 const btnSignsToText = document.getElementById('btnSignsToText');
@@ -16,6 +17,8 @@ const btnTranslate = document.getElementById('btnTranslate');
 const btnPlayVoice = document.getElementById('btnPlayVoice');
 const modelSelect = document.getElementById('model-select');
 
+const signsToTextPanel = document.getElementById('signsToTextPanel');
+const textToSignsPanel = document.getElementById('textToSignsPanel');
 const cameraSection = document.getElementById('cameraSection');
 const inputSection = document.getElementById('inputSection');
 const textResult = document.getElementById('textResult');
@@ -36,6 +39,48 @@ document.addEventListener('DOMContentLoaded', async () => {
     cameraManager = new CameraManager();
     signRecognizer = new SignRecognizer();
     textToSignTranslator = new TextToSignTranslator();
+
+    // Inicializar Speech Recognizer
+    const handleVoiceResult = (transcript) => {
+        textInput.value = transcript;
+        showMessage('Palabra registrada. Ahora puedes traducir.', 'success');
+    };
+
+    const handleVoiceEnd = () => {
+        btnVoiceInput.disabled = false;
+        btnVoiceInput.querySelector('.icon').textContent = '🎤';
+    };
+
+    const handleVoiceError = (errorEvent) => {
+        const errorType = errorEvent.error || 'unknown';
+        let errorMessage = `Error en el reconocimiento: ${errorType}`;
+        let errorTypeClass = 'error';
+
+        if (errorType === 'no-speech') {
+            errorMessage = 'No se detectó voz. Inténtalo de nuevo.';
+            errorTypeClass = 'warning';
+        } else if (errorType === 'network') {
+            errorMessage = 'Error de red. Por favor, verifica tu conexión a internet e inténtalo de nuevo.';
+        } else if (errorType === 'not-allowed' || errorType === 'service-not-allowed') {
+            errorMessage = 'Acceso al micrófono denegado. Habilita el permiso en la configuración del navegador.';
+        } else if (errorType === 'audio-capture') {
+            errorMessage = 'No se pudo acceder al micrófono. Asegúrate de que no esté siendo usado por otra aplicación.';
+        }
+        
+        showMessage(errorMessage, errorTypeClass);
+        handleVoiceEnd(); // Reset button state on error
+    };
+
+    try {
+        speechRecognizer = new SpeechToText(handleVoiceResult, handleVoiceEnd, handleVoiceError);
+    } catch (error) {
+        console.error(error.message);
+        showMessage(error.message, 'error');
+        if (btnVoiceInput) {
+            btnVoiceInput.disabled = true;
+            btnVoiceInput.title = 'Reconocimiento de voz no soportado';
+        }
+    }
 
     // Cargar modelo por defecto
     await signRecognizer.initialize('abecedario');
@@ -102,7 +147,14 @@ function setupEventListeners() {
 
     // Botón de voz
     btnVoiceInput.addEventListener('click', () => {
-        showMessage('Función de voz en desarrollo...', 'info');
+        if (speechRecognizer && !speechRecognizer.isRecognizing) {
+            showMessage('Escuchando...', 'info');
+            btnVoiceInput.disabled = true;
+            btnVoiceInput.querySelector('.icon').textContent = '...';
+            speechRecognizer.start();
+        } else if (!speechRecognizer) {
+            showMessage('El reconocimiento de voz no está disponible.', 'error');
+        }
     });
 
     // ============================================
@@ -152,6 +204,7 @@ function setupEventListeners() {
     });
 }
 
+
 // Reconocimiento continuo
 function startContinuousRecognition() {
     setInterval(async () => {
@@ -169,43 +222,49 @@ function startContinuousRecognition() {
 function switchMode(mode) {
     currentMode = mode;
 
+    // Detener la cámara si está activa al cambiar de modo
     if (cameraManager.isCameraActive()) {
         cameraManager.stopCamera();
+        btnStartCamera.disabled = false;
+        btnStopCamera.disabled = true;
     }
-    btnStartCamera.disabled = false;
-    btnStopCamera.disabled = true;
 
     if (mode === 'signsToText') {
+        // Actualizar botones de modo
         btnSignsToText.classList.add('active');
         btnTextToSigns.classList.remove('active');
         
-        cameraSection.style.display = 'block';
-        inputSection.style.display = 'none';
+        // Mostrar y ocultar paneles
+        signsToTextPanel.classList.remove('hidden');
+        textToSignsPanel.classList.add('hidden');
         
-        textResult.querySelector('p').textContent = 'Aquí aparecerá el texto traducido...';
+        // Resetear estado de la UI de resultados
         textResult.style.display = 'block';
         signResult.style.display = 'none';
         btnPlayVoice.style.display = 'none';
+        textResult.querySelector('p').textContent = 'Aquí aparecerá el texto traducido...';
 
     } else if (mode === 'textToSigns') {
+        // Actualizar botones de modo
         btnTextToSigns.classList.add('active');
         btnSignsToText.classList.remove('active');
         
-        cameraSection.style.display = 'none';
-        inputSection.style.display = 'block';
+        // Mostrar y ocultar paneles
+        textToSignsPanel.classList.remove('hidden');
+        signsToTextPanel.classList.add('hidden');
         
+        // Resetear estado de la UI de resultados
         textInput.value = '';
         textResult.style.display = 'none';
         signResult.style.display = 'block';
         
-        // Limpiar resultado anterior
-        const resultContainer = document.querySelector('.result-container');
-        if (resultContainer) {
-            resultContainer.innerHTML = '<p style="color: #718096;">Escribe un texto y presiona "Traducir"</p>';
-        }
+        // Limpiar resultado anterior y mostrar placeholder
+        const signImage = document.getElementById('signImage');
+        if (signImage) signImage.style.display = 'none';
+        // Aquí puedes establecer una imagen o video de placeholder si lo deseas
     }
 
-    console.log(`Modo: ${mode}`);
+    console.log(`Modo cambiado a: ${mode}`);
 }
 
 // Mostrar mensajes
